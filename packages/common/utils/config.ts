@@ -40,12 +40,12 @@ const defaultSchema: ConfigSchema = {
     pollRate: {
         binding: 'POLL_RATE',
         default: 150,
-        min: 100
+        min: 0
     },
     preciseDataPollRate: {
         binding: 'PRECISE_DATA_POLL_RATE',
         default: 10,
-        min: 1
+        min: 0
     },
     showMpCommands: {
         binding: 'SHOW_MP_COMMANDS',
