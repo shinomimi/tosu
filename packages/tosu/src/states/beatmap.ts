@@ -1,8 +1,8 @@
 import { ClientType, config, measureTime, wLogger } from '@tosu/common';
 import {
     type DifficultyAttrs,
-    HitWindows,
     type LazerMod,
+    OsuHitResult,
     type PeakStrains,
     type PerformanceAttrsData,
     PlayBeatmap,
@@ -14,6 +14,7 @@ import { Beatmap as ParsedBeatmap, TimingPoint } from 'osu-classes';
 import { BeatmapDecoder } from 'osu-parsers';
 
 import type { BeatmapStrains } from '@/api/types/v1';
+import type { HitWindow } from '@/api/types/v2';
 import { AbstractInstance } from '@/instances';
 import { AbstractState } from '@/states';
 import { fixDecimals, safeJoin } from '@/utils/converters';
@@ -58,7 +59,7 @@ interface BeatmapAttributes {
     rhythm?: number | undefined;
     color?: number | undefined;
     reading?: number | undefined;
-    hitWindow?: number | undefined;
+    hitWindow: HitWindow;
 }
 
 interface BeatmapPPAttributes {
@@ -207,7 +208,7 @@ export class BeatmapPP extends AbstractState {
             rhythm: 0.0,
             color: 0.0,
             reading: 0.0,
-            hitWindow: 0.0
+            hitWindow: {}
         };
         this.currAttributes = {
             stars: 0.0,
@@ -391,15 +392,13 @@ export class BeatmapPP extends AbstractState {
             );
 
             const mods: LazerMod[] = sanitizeMods(currentMods.array).map(
-                (mod) => {
-                    return {
-                        acronym: mod.acronym,
-                        settings:
-                            'settings' in mod && mod.settings
-                                ? new Map(Object.entries(mod.settings))
-                                : new Map()
-                    };
-                }
+                (mod) => ({
+                    acronym: mod.acronym,
+                    settings:
+                        'settings' in mod && mod.settings
+                            ? new Map(Object.entries(mod.settings))
+                            : new Map()
+                })
             );
             if (this.game.client !== ClientType.lazer) {
                 // Add classic mod if client is not on lazer.
@@ -546,6 +545,7 @@ export class BeatmapPP extends AbstractState {
             const originalDifficulty =
                 this.beatmap.getOriginalBeatmapDifficulty();
             const convertedDifficulty = this.beatmap.getBeatmapDifficulty();
+
             this.calculatedMapAttributes = {
                 ar: originalDifficulty.approachRate,
                 arConverted: convertedDifficulty.approachRate,
@@ -570,9 +570,13 @@ export class BeatmapPP extends AbstractState {
                 rhythm: difficulty.rhythm,
                 color: difficulty.color,
                 reading: difficulty.reading,
-                hitWindow: HitWindows.getGreatHitWindow(
-                    this.beatmap.mode,
-                    convertedDifficulty.overallDifficulty
+                hitWindow: Object.fromEntries(
+                    Array.from(
+                        this.beatmap.createHitWindows().allAvailableWindows()
+                    ).map(([key, value]) => [
+                        OsuHitResult[key].replace(/^./, (s) => s.toLowerCase()),
+                        value / this.clockRate
+                    ])
                 )
             };
 
