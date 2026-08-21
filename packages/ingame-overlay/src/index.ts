@@ -8,12 +8,14 @@ import { registerTosuProtocol } from './protocol';
 
 // prefer discrete gpu on laptop
 app.commandLine.appendSwitch('force_high_performance_gpu');
-// disable view scaling on hidpi
-app.commandLine.appendSwitch('high-dpi-support', '1');
-app.commandLine.appendSwitch('force-device-scale-factor', '1');
 // run in process gpu, reduce overheads
 app.commandLine.appendSwitch('in-process-gpu');
 app.commandLine.appendSwitch('disable-direct-composition');
+// disable third party storage partitioning, to avoid issues with overlays using isolated storage
+app.commandLine.appendSwitch(
+    'disable-features',
+    'ThirdPartyStoragePartitioning'
+);
 
 (async () => {
     // Dev mode
@@ -23,8 +25,12 @@ app.commandLine.appendSwitch('disable-direct-composition');
     }
 
     // Check single instance and ignore manually launched instance without ipc
-    if (!app.requestSingleInstanceLock() || !process.channel) {
-        return;
+    if (!app.requestSingleInstanceLock()) {
+        throw new Error(
+            'Another instance is already running. Please close it first. Exiting...'
+        );
+    } else if (!process.channel) {
+        throw new Error('Failed to acquire IPC channel. Exiting...');
     }
 
     console.log('warn: Starting...');
@@ -69,4 +75,5 @@ app.commandLine.appendSwitch('disable-direct-composition');
     tray.setContextMenu(contextMenu);
 })().catch((exc) => {
     console.error(exc);
+    app.exit(0);
 });
