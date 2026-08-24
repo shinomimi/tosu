@@ -1,6 +1,6 @@
 {
   "name": "@tosu/ingame-overlay",
-  "version": "4.25.1",
+  "version": "4.26.0",
   "description": "High performance tosu ingame overlay",
   "private": true,
   "main": "./dist/src/index.js",
@@ -13,16 +13,17 @@
   "keywords": [],
   "author": "storycraft <storycraft@pancake.sh>",
   "dependencies": {
-    "@asdf-overlay/core": "^2.0.2",
-    "@asdf-overlay/electron": "^2.0.2"
+    "@asdf-overlay/core": "^2.0.6",
+    "@asdf-overlay/electron": "^2.0.6"
   },
   "devDependencies": {
     "@types/node": "^24.10.4",
     "electron": "^43.4.0",
     "electron-builder": "^26.15.7",
+    "electron-builder-squirrel-windows": "26.15.7",
     "electron-vite": "^5.0.0",
     "typescript": "^6.0.3",
-    "vite": "^7.3.0"
+    "vite": "^7.3.6"
   },
   "build": {
     "productName": "tosu-ingame-overlay",
