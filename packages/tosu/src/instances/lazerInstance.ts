@@ -178,7 +178,8 @@ export class LazerInstance extends AbstractInstance {
             settings,
             user,
             lazerMultiSpectating,
-            rankedPlay
+            rankedPlay,
+            room
         } = this.getServices([
             'global',
             'menu',
@@ -190,7 +191,8 @@ export class LazerInstance extends AbstractInstance {
             'tourneyManager',
             'user',
             'lazerMultiSpectating',
-            'rankedPlay'
+            'rankedPlay',
+            'room'
         ]);
 
         while (!this.isDestroyed) {
@@ -224,18 +226,19 @@ export class LazerInstance extends AbstractInstance {
                 }
 
                 rankedPlay.updateState();
+                room.updateState();
 
                 settings.updateState();
 
                 const currentMods =
-                    global.status === GameState.play
+                    global.status === GameState.play && !gameplay.isDefaultState
                         ? gameplay.mods
                         : global.status === GameState.resultScreen
                           ? resultScreen.mods
                           : global.menuMods;
 
                 const currentMode =
-                    global.status === GameState.play
+                    global.status === GameState.play && !gameplay.isDefaultState
                         ? gameplay.mode
                         : global.status === GameState.resultScreen
                           ? resultScreen.mode

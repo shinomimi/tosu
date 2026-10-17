@@ -103,7 +103,8 @@ export const buildResult = (instanceManager: InstanceManager): ApiAnswer => {
         resultScreen,
         beatmapPP,
         user,
-        rankedPlay
+        rankedPlay,
+        room
     } = osuInstance.getServices([
         'settings',
         'bassDensity',
@@ -113,18 +114,19 @@ export const buildResult = (instanceManager: InstanceManager): ApiAnswer => {
         'resultScreen',
         'beatmapPP',
         'user',
-        'rankedPlay'
+        'rankedPlay',
+        'room'
     ]);
 
     const currentMods =
-        global.status === GameState.play
+        global.status === GameState.play && !gameplay.isDefaultState
             ? gameplay.mods
             : global.status === GameState.resultScreen
               ? resultScreen.mods
               : global.menuMods;
 
     const currentMode =
-        global.status === 2
+        global.status === 2 && !gameplay.isDefaultState
             ? gameplay.mode
             : global.status === 7
               ? resultScreen.mode
@@ -146,6 +148,7 @@ export const buildResult = (instanceManager: InstanceManager): ApiAnswer => {
             playCount: 0 // need counting
         },
         rankedPlay: rankedPlay.info,
+        room: room.info,
         settings: {
             interfaceVisible: global.showInterface,
             replayUIVisible: global.isReplayUiHidden === false,
@@ -727,7 +730,7 @@ const buildTourneyData = (
             ]);
 
             const currentMods =
-                global.status === GameState.play
+                global.status === GameState.play && !gameplay.isDefaultState
                     ? gameplay.mods
                     : global.status === GameState.resultScreen
                       ? resultScreen.mods
